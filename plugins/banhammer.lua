@@ -91,7 +91,7 @@ local function kick_ban_res(extra, success, result)
       local from_id = extra.from_id
       local get_cmd = extra.get_cmd
       local receiver = "chat#id"..chat_id
-       if get_cmd == "اخراج" then
+       if get_cmd == "kick" then
          if member_id == from_id then
              return send_large_msg(receiver, "You can't kick yourself")
          end
@@ -99,42 +99,42 @@ local function kick_ban_res(extra, success, result)
             return send_large_msg(receiver, "You can't kick mods/owner/admins")
          end
          return kick_user(member_id, chat_id)
-      elseif get_cmd == 'بن' then
+      elseif get_cmd == 'ban' then
         if is_momod2(member_id, chat_id) and not is_admin2(sender) then
           return send_large_msg(receiver, "You can't ban mods/owner/admins")
         end
-        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] banned')
+        send_large_msg(receiver, 'User @'..کاربر..' ['..member_id..'] بن شد')
         return ban_user(member_id, chat_id)
-      elseif get_cmd == 'ان بن' then
-        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] unbanned')
+      elseif get_cmd == 'unban' then
+        send_large_msg(receiver, 'User @'..کاربر..' ['..member_id..'] آنبن سد')
         local hash =  'banned:'..chat_id
         redis:srem(hash, member_id)
         return 'کاربر '..user_id..' بن شد'
-      elseif get_cmd == 'بن جهانی' then
-        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] globally banned')
+      elseif get_cmd == 'banall' then
+        send_large_msg(receiver, 'User @'..کاربر..' ['..member_id..'] از همه ی گروه ها بن شد')
         return banall_user(member_id, chat_id)
-      elseif get_cmd == 'حذف بن جهانی' then
-        send_large_msg(receiver, 'User @'..member..' ['..member_id..'] un-globally banned')
+      elseif get_cmd == 'unbanall' then
+        send_large_msg(receiver, 'User @'..کاربر..' ['..member_id..'] از همه ی گروه ها آنبن شد')
         return unbanall_user(member_id, chat_id)
       end
 end
 
 local function run(msg, matches)
- if matches[1]:lower() == 'ایدی' then
+ if matches[1]:lower() == 'id' then
     if msg.to.type == "user" then
-      return "Bot ID: "..msg.to.id.. "\n\nYour ID: "..msg.from.id
+      return "آیدی ربات: "..msg.to.id.. "\n\nآیدی شما: "..msg.from.id
     end
     if type(msg.reply_id) ~= "nil" then
       local name = user_print_name(msg.from)
         savelog(msg.to.id, name.." ["..msg.from.id.."] used /id ")
         id = get_message(msg.reply_id,get_message_callback_id, false)
-    elseif matches[1]:lower() == 'ایدی' then
+    elseif matches[1]:lower() == 'id' then
       local name = user_print_name(msg.from)
       savelog(msg.to.id, name.." ["..msg.from.id.."] used /id ")
-      return "Group ID for " ..string.gsub(msg.to.print_name, "_", " ").. ":\n\n"..msg.to.id  
+      return "آیدی گروه " ..string.gsub(msg.to.print_name, "_", " ").. ":\n\n"..msg.to.id  
     end
   end
-  if matches[1]:lower() == 'حذفم کن' then-- /kickme
+  if matches[1]:lower() == 'kickme' then-- /kickme
   local receiver = get_receiver(msg)
     if msg.to.type == 'chat' then
       local name = user_print_name(msg.from)
@@ -147,14 +147,14 @@ local function run(msg, matches)
     return
   end
 
-  if matches[1]:lower() == "لیست بن" then -- Ban list !
+  if matches[1]:lower() == "banlist" then -- Ban list !
     local chat_id = msg.to.id
     if matches[2] and is_admin(msg) then
       chat_id = matches[2] 
     end
-    return ban_list(chat_id)
+    return لیست افراد بن شده(chat_id)
   end
-  if matches[1]:lower() == 'بن' then-- /ban 
+  if matches[1]:lower() == 'ban' then-- /ban 
     if type(msg.reply_id)~="nil" and is_momod(msg) then
       if is_admin(msg) then
         local msgr = get_message(msg.reply_id,ban_by_reply_admins, false)
@@ -190,7 +190,7 @@ local function run(msg, matches)
   end
 
 
-  if matches[1]:lower() == 'ان بن' then -- /unban 
+  if matches[1]:lower() == 'unban' then -- /unban 
     if type(msg.reply_id)~="nil" and is_momod(msg) then
       local msgr = get_message(msg.reply_id,unban_by_reply, false)
     end
@@ -207,7 +207,7 @@ local function run(msg, matches)
       else
 		local cbres_extra = {
 			chat_id = msg.to.id,
-			get_cmd = 'ان بن',
+			get_cmd = 'unban',
 			from_id = msg.from.id
 		}
 		local username = matches[2]
@@ -216,7 +216,7 @@ local function run(msg, matches)
 	end
  end
 
-if matches[1]:lower() == 'اخراج' then
+if matches[1]:lower() == 'kick' then
     if type(msg.reply_id)~="nil" and is_momod(msg) then
       if is_admin(msg) then
         local msgr = get_message(msg.reply_id,Kick_by_reply_admins, false)
@@ -243,7 +243,7 @@ if matches[1]:lower() == 'اخراج' then
 	else
 		local cbres_extra = {
 			chat_id = msg.to.id,
-			get_cmd = 'اخراج',
+			get_cmd = 'kick',
 			from_id = msg.from.id
 		}
 		local username = matches[2]
@@ -257,7 +257,7 @@ end
     return
   end
 
-  if matches[1]:lower() == 'بن جهانی' then -- Global ban
+  if matches[1]:lower() == 'banall' then -- Global ban
     if type(msg.reply_id) ~="nil" and is_admin(msg) then
       return get_message(msg.reply_id,banall_by_reply, false)
     end
@@ -273,7 +273,7 @@ end
       else
 	local cbres_extra = {
 		chat_id = msg.to.id,
-		get_cmd = 'بن جهانی',
+		get_cmd = 'banall',
 		from_id = msg.from.id
 	}
 		local username = matches[2]
@@ -281,7 +281,7 @@ end
 		res_user(username, kick_ban_res, cbres_extra)
       	end
   end
-  if matches[1]:lower() == 'حذف بن جهانی' then -- Global unban
+  if matches[1]:lower() == 'unbanall' then -- Global unban
     local user_id = matches[2]
     local chat_id = msg.to.id
       if string.match(matches[2], '^%d+$') then
@@ -293,7 +293,7 @@ end
       else
 	local cbres_extra = {
 		chat_id = msg.to.id,
-		get_cmd = 'حذف بن جهانی',
+		get_cmd = 'unbanall',
 		from_id = msg.from.id
 	}
 		local username = matches[2]
@@ -301,31 +301,31 @@ end
 		res_user(username, kick_ban_res, cbres_extra)
       end
   end
-  if matches[1]:lower() == "لیست بن جهانی" then -- Global ban list
+  if matches[1]:lower() == "gbanlist" then -- Global ban list
     return banall_list()
   end
 end
 
 return {
-  patterns = {
-    "^(بن جهانی) (.*)$",
-    "^[!/](بن جهانی)$",
-    "^(لیست بن جهانی) (.*)$",
-    "^(لیست بن)$",
-    "^(لیست بن)$",
-    "^(بن) (.*)$",
-    "^(اخراج)$",
-    "^(ان بن) (.*)$",
-    "^(حذف بن جهانی) (.*)$",
-    "^([حذف بن جهانی)$",
-    "^(ان بن) (.*)$",
-    "^(حذفم کن)$",
-    "^([بن)$",
-    "^([ان بن)$",
-    "^(ایدی)$",
+patterns = {
+    "^[Bb]anall (.*)$",
+    "^[Bb]anall$",
+    "^[Bb]anlist (.*)$",
+    "^[Bb]anlist$",
+    "^[Gg]banlist$",
+    "^[Bb]an (.*)$",
+    "^[Kk]ick$",
+    "^[Uu]nban (.*)$",
+    "^[Uu]nbanall (.*)$",
+    "^[Uu]nbanall$",
+    "^[Kk]ick (.*)$",
+    "^[Kk]ickme$",
+    "^[Bb]an$",
+    "^[Uu]nban$",
+    "^[Ii]d$",
     "^!!tgservice (.+)$"
   },
   run = run,
   pre_process = pre_process --by shatel team
-}
-
+}	
+  
