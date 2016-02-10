@@ -238,7 +238,7 @@ function create_config( )
     "echo",
     "linkpv"
     },
-    sudo_users = {18180315,135693512},--Sudo users
+    sudo_users = {181803152},--Sudo users
     disabled_channels = {},
     moderation = {data = 'data/moderation.json'},
     about_text = [[Creed bot 2.3
